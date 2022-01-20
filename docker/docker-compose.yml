@@ -1,0 +1,82 @@
+version: '3.0'
+
+services:
+   nginx:
+      image: nginx:latest
+      ports:
+         - "80:80"
+         - "443:443"
+      networks:
+         app_net:
+            ipv4_address: 10.1.1.100
+      volumes:
+         - ./nginx:/etc/nginx
+         - ./opt/www:/opt/www
+         - ./ssl:/etc/ssl
+         - ./logs/nginx:/var/log/nginx
+      extra_hosts:
+         - "mysql:172.1.1.1"
+      container_name: nginx
+   
+   php:
+      image: vegor/iredmail_php
+      networks:
+         app_net:
+            ipv4_address: 10.1.1.101
+      extra_hosts:
+         - "mysql:172.1.1.1"
+      volumes:
+         - ./opt/www:/opt/www
+      container_name: php
+
+   dovecot:
+      image: vegor/iredmail_dovecot
+      ports:
+         - "110:110"
+         - "143:143"
+         - "993:993"
+         - "995:995"
+      networks:
+         app_net:
+            ipv4_address: 10.1.1.102
+      extra_hosts:
+         - "mysql:172.1.1.1"
+      volumes:
+         - ./dovecot:/etc/dovecot
+         - ./vmail:/var/vmail
+         - ./ssl:/etc/ssl
+      container_name: dovecot
+
+   postfix:
+      image: vegor/iredmail_postfix
+      ports:
+         - "25:25"
+      networks:
+         app_net:
+            ipv4_address: 10.1.1.103
+      extra_hosts:
+         - "mysql:172.16.18.31"
+      volumes:
+         - ./postfix:/etc/postfix
+         - ./ssl:/etc/ssl
+      container_name: postfix
+
+   amavis:
+      image: vegor/iredmail_amavis
+      networks:
+         app_net:
+            ipv4_address: 10.1.1.104
+      volumes:
+         - ./mailname:/etc/mailname
+         - ./amavis:/etc/amavis
+         - ./dkim:/var/lib/dkim
+         - ./mail:/etc/mail
+      container_name: amavis
+
+networks:
+   app_net:
+     driver: bridge
+     ipam:
+       driver: default
+       config:
+          - subnet: 10.1.1.0/24

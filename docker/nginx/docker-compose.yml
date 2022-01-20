@@ -1,0 +1,56 @@
+version: '3'
+
+services:
+   nginx:
+      image: nginx:latest
+      ports:
+         - "80:80"
+         - "443:443"
+      volumes:
+         - ./nginx:/etc/nginx
+         - ./opt/www:/opt/www
+         - ./ssl:/etc/ssl
+         - ./logs/nginx:/var/log/nginx
+      links:
+         - php
+         - mariadb
+      container_name: nginx
+   
+   php:
+      build: ./images/php
+      links:
+         - mariadb
+      volumes:
+         - ./opt/www:/opt/www
+      container_name: php
+
+   dovecot:
+      image: dovecot/dovecot:latest
+      ports:
+         - "143:143"
+         - "587:587"
+         - "24:24"
+         - "993:993"
+         - "995:995"
+
+      links:
+         - mariadb
+      volumes:
+         - ./dovecot:/etc/dovecot
+         - ./vmail:/var/vmail
+         - ./ssl:/etc/ssl
+         - ./logs/dovecot:/var/log/dovecot
+      container_name: dovecot
+
+   mariadb:
+      image: mariadb:latest
+      ports:
+         - "3306:3306"
+      volumes:
+         - ./mysql:/etc/mysql
+         - ./mysql-init:/docker-entrypoint-initdb.d
+         - ./logs/mysql:/var/log/mysql
+         - ./upgrade-db:/mnt
+      environment:
+            MYSQL_ROOT_PASSWORD: 2SNzdu10
+      container_name: mariadb
