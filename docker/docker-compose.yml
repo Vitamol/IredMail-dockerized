@@ -55,7 +55,7 @@ services:
          app_net:
             ipv4_address: 10.1.1.103
       extra_hosts:
-         - "mysql:172.16.18.31"
+         - "mysql:172.1.1.1"
       volumes:
          - ./postfix:/etc/postfix
          - ./ssl:/etc/ssl
