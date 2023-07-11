@@ -1,4 +1,3 @@
-# IredMail mail system im docker containers
+# IredMail mail system im docker containers - Under construction
 
 Two examples - for docker-compose and kubectl
-Under construction
